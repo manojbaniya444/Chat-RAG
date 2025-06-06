@@ -14,35 +14,58 @@ const ChatRootPage = (props: Props) => {
   const [pageCount, setPageCount] = useState<number | null>(null);
   const [selectedFile, setselectedFile] = useState<File | null>(null);
 
-  const handleFileSubmit = async (e: React.FormEvent) => {
+  // after getting the signed url upload to supabase
+  const uploadToSupabase = async (url: string, path: string) => {
+    try {
+      const uploadResponse = await fetch(url, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/pdf",
+        },
+        body: selectedFile,
+      });
+
+      if (!uploadResponse.ok) {
+        setError("Upload to storage not success");
+        return;
+      }
+    } catch (error) {
+      console.log(error);
+      setError("Error uploading to supabase");
+    }
+  };
+
+  // after file drop handle submit to get the signed url
+const handleFileSubmit = async (e: React.FormEvent) => {
     e.stopPropagation();
     e.preventDefault();
 
     if (!selectedFile) return;
-
-    const formData = new FormData();
-
-    formData.append("file", selectedFile);
-
+    // get the signed url to upload to storage
     try {
-      setError(null);
-      const res = await fetch("/api/upload", {
-        method: "POST",
-        body: formData,
-      });
+        setError(null);
+        const res = await fetch("/api/get-upload-url", {
+            method: "POST",
+            body: JSON.stringify({ fileName: selectedFile.name }),
+        });
 
-      if (!res.ok) {
-        setError("Upload failed.");
-      } else {
-        console.log("Success.");
-      }
+        if (!res.ok) {
+            const errorText = await res.text();
+            throw new Error(errorText || "Upload failed.");
+        } else {
+            const { url, path } = await res.json();
+            console.log(`Got url ${url} and path ${path} to upload.`);
+            uploadToSupabase(url, path);
 
-      console.log(formData);
-    } catch (err) {
-      setError("Upload error.");
+            console.log("Success.");
+        }
+    } catch (err: any) {
+        console.log(err);
+        setError(err.message || "Error getting signed url");
     }
-  };
+};
 
+  // handle drop event
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
     setError(null);
     setPageCount(null);
@@ -60,9 +83,9 @@ const ChatRootPage = (props: Props) => {
     }
 
     setselectedFile(file);
-    // You can set pageCount here if you extract it from the PDF
   }, []);
 
+  // on drop any error
   const onDropRejected = useCallback((fileRejections: any[]) => {
     if (
       fileRejections.length > 0 &&
