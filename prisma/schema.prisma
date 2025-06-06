@@ -9,7 +9,7 @@ datasource db {
 }
 
 model Account {
-  id           String @id @default(cuid())
+  id           String @id
   emailAddress String @unique
   firstName    String
   lastName     String

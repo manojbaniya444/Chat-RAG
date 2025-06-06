@@ -4610,7 +4610,7 @@ export namespace Prisma {
   }
 
   export type AccountCreateInput = {
-    id?: string
+    id: string
     emailAddress: string
     firstName: string
     lastName: string
@@ -4619,7 +4619,7 @@ export namespace Prisma {
   }
 
   export type AccountUncheckedCreateInput = {
-    id?: string
+    id: string
     emailAddress: string
     firstName: string
     lastName: string
@@ -4646,7 +4646,7 @@ export namespace Prisma {
   }
 
   export type AccountCreateManyInput = {
-    id?: string
+    id: string
     emailAddress: string
     firstName: string
     lastName: string
@@ -5208,7 +5208,7 @@ export namespace Prisma {
   }
 
   export type AccountCreateWithoutChatsInput = {
-    id?: string
+    id: string
     emailAddress: string
     firstName: string
     lastName: string
@@ -5216,7 +5216,7 @@ export namespace Prisma {
   }
 
   export type AccountUncheckedCreateWithoutChatsInput = {
-    id?: string
+    id: string
     emailAddress: string
     firstName: string
     lastName: string

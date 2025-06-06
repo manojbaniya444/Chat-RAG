@@ -13,10 +13,12 @@ export const POST: (req: Request) => Promise<Response> = async (
     const firstName: string = data.first_name;
     const lastName: string = data.last_name;
     const imageUrl: string = data.image_url;
+    const id: string = data.id;
 
     // Save the data to the postgres database
     await prisma.account.create({
       data: {
+        id,
         emailAddress,
         firstName,
         lastName,

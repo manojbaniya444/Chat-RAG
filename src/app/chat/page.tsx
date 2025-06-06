@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button";
 import React, { useCallback, useState } from "react";
 import { useDropzone } from "react-dropzone";
+import { useAuth } from "@clerk/nextjs";
 
 type Props = {};
 
@@ -13,6 +14,8 @@ const ChatRootPage = (props: Props) => {
   const [error, setError] = useState<string | null>(null);
   const [pageCount, setPageCount] = useState<number | null>(null);
   const [selectedFile, setselectedFile] = useState<File | null>(null);
+
+  const { userId } = useAuth();
 
   // after getting the signed url upload to supabase
   const uploadToSupabase = async (url: string, path: string) => {
@@ -29,6 +32,22 @@ const ChatRootPage = (props: Props) => {
         setError("Upload to storage not success");
         return;
       }
+
+      // start processing pdf
+      const embedRes = await fetch("/api/process-pdf", {
+        method: "POST",
+        // send here user id also to include in the chat table
+        body: JSON.stringify({ path, userId }),
+      });
+
+      const embedResParseData = await embedRes.json();
+      if (!embedRes.ok) {
+        setError(embedResParseData.error || "Processing pdf fail");
+        return;
+      }
+      console.log("Successfully now you can chat", embedResParseData);
+
+      // update the database
     } catch (error) {
       console.log(error);
       setError("Error uploading to supabase");
@@ -36,34 +55,34 @@ const ChatRootPage = (props: Props) => {
   };
 
   // after file drop handle submit to get the signed url
-const handleFileSubmit = async (e: React.FormEvent) => {
+  const handleFileSubmit = async (e: React.FormEvent) => {
     e.stopPropagation();
     e.preventDefault();
 
     if (!selectedFile) return;
     // get the signed url to upload to storage
     try {
-        setError(null);
-        const res = await fetch("/api/get-upload-url", {
-            method: "POST",
-            body: JSON.stringify({ fileName: selectedFile.name }),
-        });
+      setError(null);
+      const res = await fetch("/api/get-upload-url", {
+        method: "POST",
+        body: JSON.stringify({ fileName: selectedFile.name }),
+      });
 
-        if (!res.ok) {
-            const errorText = await res.text();
-            throw new Error(errorText || "Upload failed.");
-        } else {
-            const { url, path } = await res.json();
-            console.log(`Got url ${url} and path ${path} to upload.`);
-            uploadToSupabase(url, path);
+      if (!res.ok) {
+        const errorText = await res.text();
+        throw new Error(errorText || "Upload failed.");
+      } else {
+        const { url, path } = await res.json();
+        console.log(`Got url ${url} and path ${path} to upload.`);
+        uploadToSupabase(url, path);
 
-            console.log("Success.");
-        }
+        console.log("Success.");
+      }
     } catch (err: any) {
-        console.log(err);
-        setError(err.message || "Error getting signed url");
+      console.log(err);
+      setError(err.message || "Error getting signed url");
     }
-};
+  };
 
   // handle drop event
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
