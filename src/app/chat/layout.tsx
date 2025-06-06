@@ -2,7 +2,7 @@
 import React, { ReactNode, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
-import { useAuth } from "@clerk/nextjs";
+import { useAuth, UserButton } from "@clerk/nextjs";
 
 type ChatLayoutProps = {
   children: ReactNode;
@@ -57,13 +57,14 @@ export default function ChatLayout({ children }: ChatLayoutProps) {
           maxWidth: 400,
         }}
       >
-        <div className="p-4 border-b border-border">
+        <div className="p-4 border-b border-border flex items-center justify-between gap-4">
           <button
-            className="w-full px-3 py-2 rounded-md border border-input bg-background text-sm hover:bg-accent transition-colors"
+            className="flex-1 px-3 py-2 rounded-md border border-input bg-background text-sm hover:bg-accent transition-colors"
             onClick={() => router.push("/chat")}
           >
             Start new chat by uploading a file
           </button>
+          <UserButton />
         </div>
         <div className="flex-1 overflow-y-auto">
           <ul className="list-none m-0 p-0">
@@ -98,9 +99,9 @@ export default function ChatLayout({ children }: ChatLayoutProps) {
                 ×
               </button>
             </div>
-            <div className="p-4 border-b border-border">
+            <div className="p-4 border-b border-border flex items-center justify-between gap-4">
               <button
-                className="w-full px-3 py-2 rounded-md border border-input bg-background text-sm hover:bg-accent transition-colors"
+                className="flex-1 px-3 py-2 rounded-md border border-input bg-background text-sm hover:bg-accent transition-colors"
                 onClick={() => {
                   setSidebarOpen(false);
                   router.push("/chat");
@@ -108,6 +109,7 @@ export default function ChatLayout({ children }: ChatLayoutProps) {
               >
                 Start new chat by uploading a file
               </button>
+              <UserButton />
             </div>
             <div className="flex-1 overflow-y-auto">
               <ul className="list-none m-0 p-0">

@@ -41,3 +41,13 @@ model Message {
 
   @@index([chatId])
 }
+/// Fetch all messages for a given userId
+/// Example Prisma Client query in TypeScript:
+///
+/// const messages = await prisma.message.findMany({
+///   where: {
+///     chat: {
+///       user_id: userId,
+///     },
+///   },
+/// });

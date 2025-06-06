@@ -4,6 +4,7 @@ import { useChat, Message } from "@ai-sdk/react";
 import { useEffect, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import { useParams } from "next/navigation";
+import { useAuth } from "@clerk/nextjs";
 
 export default function Page() {
   const params = useParams();
@@ -13,6 +14,8 @@ export default function Page() {
     null
   );
   const messagesContainerRef = useRef<HTMLDivElement>(null);
+
+  const { userId } = useAuth();
 
   // Load messages once on mount
   useEffect(() => {
@@ -50,7 +53,7 @@ export default function Page() {
       ? {
           api: "/api/chat",
           initialMessages,
-          body: { chatId },
+          body: { chatId, userId },
           onError: (error) => console.error("Chat error:", error),
         }
       : {}

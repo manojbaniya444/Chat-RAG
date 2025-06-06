@@ -31,8 +31,94 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: Request) {
   try {
-    const { messages, chatId }: { messages: UIMessage[]; chatId: string } =
+    const {
+      messages,
+      chatId,
+      userId,
+    }: { messages: UIMessage[]; chatId: string; userId: string } =
       await req.json();
+
+    // here check if the user has more than limited messages in limited time.
+    // Count messages sent by the user in the last 24 hours
+    const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+    const messageCount = await prisma.message.count({
+      where: {
+        chat: {
+          user_id: userId,
+        },
+        role: "user",
+        createdAt: {
+          gte: twentyFourHoursAgo,
+        },
+      },
+    });
+
+    // also if the messages in the chat exceeds 25 throw error showing maximum chat reach
+    const chatMessageCount = await prisma.message.count({
+      where: {
+        chatId: chatId,
+      },
+    });
+
+    if (chatMessageCount > 15) {
+      return new Response(
+        JSON.stringify({
+          error:
+            "Maximum messages reached in this chat. Please start a new chat.",
+        }),
+        {
+          status: 429,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+    }
+
+    if (messageCount > 30) {
+      const latestMessage = await prisma.message.findFirst({
+        where: {
+          chat: {
+            user_id: userId,
+          },
+          role: "user",
+          createdAt: {
+            gte: twentyFourHoursAgo,
+          },
+        },
+        orderBy: { createdAt: "desc" },
+        select: { createdAt: true },
+      });
+
+      console.log(chatMessageCount);
+
+      let cooldown = 0;
+      if (latestMessage?.createdAt) {
+        const msSinceLast =
+          Date.now() - new Date(latestMessage.createdAt).getTime();
+        cooldown = Math.max(0, 24 * 60 * 60 * 1000 - msSinceLast);
+      }
+
+      const formatTime = (ms: number) => {
+        const totalSeconds = Math.ceil(ms / 1000);
+        const hours = Math.floor(totalSeconds / 3600);
+        const minutes = Math.floor((totalSeconds % 3600) / 60);
+        const seconds = totalSeconds % 60;
+        return `${hours}h ${minutes}m ${seconds}s`;
+      };
+
+      return new Response(
+        JSON.stringify({
+          error:
+            "Message limit reached. Please wait before sending more messages.",
+          cooldown: formatTime(cooldown),
+        }),
+        {
+          status: 429,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+    }
+
+    console.log(messageCount);
 
     // Validate chatId
     if (!chatId) {
@@ -61,6 +147,14 @@ export async function POST(req: Request) {
         content: latestUserMessage.content,
       },
     });
+
+    // rephrase the user message using the history for better retrieval
+
+    // get the embeddings
+
+    // filter and select top n matching retrieval from the pinecone database
+
+    // provide the llm with the system prompt, fetch context and then the history messages to generate the answer.
 
     // Stream the response
     const result = await streamText({
