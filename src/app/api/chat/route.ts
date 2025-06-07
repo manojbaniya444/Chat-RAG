@@ -98,7 +98,7 @@ export async function POST(req: Request) {
       );
     }
 
-    if (messageCount > 25) {
+    if (messageCount > 50) {
       const latestMessage = await prisma.message.findFirst({
         where: {
           chat: {

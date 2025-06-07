@@ -6,6 +6,8 @@ import ReactMarkdown from "react-markdown";
 import { useParams } from "next/navigation";
 import { useAuth } from "@clerk/nextjs";
 
+import { SidebarTrigger } from "@/components/ui/sidebar";
+
 export default function Page() {
   const params = useParams();
   const chatId = params.id as string;
@@ -80,9 +82,10 @@ export default function Page() {
         </div>
       )}
 
-      <div className="px-6 py-2 bg-gray-100 text-sm text-gray-600">
-        Chat ID: {chatId}
-      </div>
+      <nav className="p-5 flex items-center gap-3 border-b bg-white">
+          <SidebarTrigger className="border-1 cursor-pointer p-4"/>
+        <h1 className="text-lg font-semibold truncate">Chat: {chatId}</h1>
+      </nav>
 
       <div
         ref={messagesContainerRef}

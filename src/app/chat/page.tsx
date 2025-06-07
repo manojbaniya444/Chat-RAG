@@ -5,6 +5,8 @@ import React, { useCallback, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import { useAuth } from "@clerk/nextjs";
 
+import { SidebarTrigger } from "@/components/ui/sidebar";
+
 type Props = {};
 
 const MAX_SIZE_MB = 5;
@@ -133,62 +135,62 @@ const ChatRootPage = (props: Props) => {
   });
 
   return (
-    <div
-      style={{
-        maxWidth: 400,
-        margin: "2rem auto",
-        padding: 24,
-        border: "1px solid #ccc",
-        borderRadius: 8,
-      }}
-    >
-      <div
-        {...getRootProps()}
-        style={{
-          border: "2px dashed #888",
-          padding: "2rem",
-          textAlign: "center",
-          background: isDragActive ? "#f0f8ff" : "#fafafa",
-          cursor: "pointer",
-        }}
-      >
-        <input {...getInputProps()} />
-        <p>
-          Drag & drop a PDF file here, or click to select a file.
-          <br />
-          <strong>Only PDF files</strong> are allowed.
-          <br />
-          <strong>Max size:</strong> 5 MB.
-        </p>
+    <div className="min-h-screen flex flex-col bg-gray-50">
+      <div className="w-full p-4 flex justify-between items-center border-gray-200 border-1">
+        <SidebarTrigger className="border-1 cursor-pointer p-4" />
       </div>
-
-      {error && <div style={{ color: "red", marginTop: 16 }}>{error}</div>}
-      {selectedFile && (
-        <div style={{ marginTop: 16 }}>
-          <div>
-            <strong>File name:</strong> {selectedFile.name}
+      <div className="flex flex-1 items-center justify-center">
+        <div className="w-full max-w-md bg-white rounded-lg shadow-lg p-8">
+          <div
+            {...getRootProps()}
+            className={`border-2 border-dashed ${
+              isDragActive
+                ? "border-blue-400 bg-blue-50"
+                : "border-gray-300 bg-gray-100"
+            } p-8 text-center cursor-pointer transition-colors`}
+          >
+            <input {...getInputProps()} />
+            <p className="text-gray-700">
+              Drag &amp; drop a PDF file here, or click to select a file.
+              <br />
+              <span className="font-semibold">Only PDF files</span> are allowed.
+              <br />
+              <span className="font-semibold">Max size:</span> 5 MB.
+            </p>
           </div>
-          <div>
-            <strong>File size:</strong>{" "}
-            {(selectedFile.size / (1024 * 1024)).toFixed(2)} MB
-          </div>
-        </div>
-      )}
-      {pageCount !== null && (
-        <div style={{ color: "green", marginTop: 16 }}>
-          PDF loaded successfully. Page count: {pageCount}
-        </div>
-      )}
 
-      {selectedFile && (
-        <Button
-          type="button"
-          style={{ marginTop: 16 }}
-          onClick={handleFileSubmit}
-        >
-          Upload PDF
-        </Button>
-      )}
+          {error && (
+            <div className="text-red-600 mt-4 text-center">{error}</div>
+          )}
+          {selectedFile && (
+            <div className="mt-4 text-center">
+              <div>
+                <span className="font-semibold">File name:</span>{" "}
+                {selectedFile.name}
+              </div>
+              <div>
+                <span className="font-semibold">File size:</span>{" "}
+                {(selectedFile.size / (1024 * 1024)).toFixed(2)} MB
+              </div>
+            </div>
+          )}
+          {pageCount !== null && (
+            <div className="text-green-600 mt-4 text-center">
+              PDF loaded successfully. Page count: {pageCount}
+            </div>
+          )}
+
+          {selectedFile && (
+            <Button
+              type="button"
+              className="w-full mt-6"
+              onClick={handleFileSubmit}
+            >
+              Upload PDF
+            </Button>
+          )}
+        </div>
+      </div>
     </div>
   );
 };
