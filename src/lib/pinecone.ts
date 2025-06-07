@@ -1,14 +1,8 @@
+import { RetrieveOptions } from "@/types";
 import { Pinecone } from "@pinecone-database/pinecone";
 
 const PINECONE_API_KEY = process.env.PINECONE_API_KEY!;
 const PINECONE_INDEX_NAME = process.env.PINECONE_INDEX_NAME!;
-
-type RetrieveOptions = {
-  vector: number[];
-  topK?: number;
-  chatId: string;
-  filter?: Record<string, any>;
-};
 
 if (!PINECONE_API_KEY || !PINECONE_INDEX_NAME) {
   throw new Error(

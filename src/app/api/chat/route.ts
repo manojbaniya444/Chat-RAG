@@ -4,9 +4,17 @@ import { groq } from "@ai-sdk/groq";
 import { prisma } from "@/lib/prisma";
 import { getQueryEmbedding } from "@/lib/embeddings";
 import { retrieveFromPinecone } from "@/lib/pinecone";
+import {
+  calculateCoolDownPeriod,
+  formatTime,
+  getTotalMessagesInChat,
+  getTotalUserMessagesInDuration,
+} from "@/utils/chatUtils";
 
+// GET: All the chat list for the specific userID
 export async function GET(req: NextRequest) {
   const userId = req.nextUrl.searchParams.get("userId");
+
   if (!userId) {
     return NextResponse.json({ error: "user_id is required" }, { status: 400 });
   }
@@ -31,6 +39,8 @@ export async function GET(req: NextRequest) {
   }
 }
 
+// POST: Handle user submit Input Message
+// Get the message, verify UserId and ChatId, Embed Query, Retrieve and Generate Stream Response.
 export async function POST(req: Request) {
   try {
     const {
@@ -63,28 +73,9 @@ export async function POST(req: Request) {
       );
     }
 
-    // here check if the user has more than limited messages in limited time.
-    // Count messages sent by the user in the last 24 hours
-    const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
-    const messageCount = await prisma.message.count({
-      where: {
-        chat: {
-          user_id: userId,
-        },
-        role: "user",
-        createdAt: {
-          gte: twentyFourHoursAgo,
-        },
-      },
-    });
+    const chatMessageCount = await getTotalMessagesInChat(chatId);
 
-    // also if the messages in the chat exceeds 25 throw error showing maximum chat reach
-    const chatMessageCount = await prisma.message.count({
-      where: {
-        chatId: chatId,
-      },
-    });
-
+    // Limiting the chat messages per chat count to 15 due to the long context and free tier model Context Size limitation.
     if (chatMessageCount > 15) {
       return new Response(
         JSON.stringify({
@@ -98,38 +89,21 @@ export async function POST(req: Request) {
       );
     }
 
+    // here check if the user has more than limited messages in limited time.
+    // Count messages sent by the user in the last 24 hours
+    const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+
+    const messageCount = await getTotalUserMessagesInDuration(
+      userId,
+      twentyFourHoursAgo
+    );
+
     if (messageCount > 25) {
-      const latestMessage = await prisma.message.findFirst({
-        where: {
-          chat: {
-            user_id: userId,
-          },
-          role: "user",
-          createdAt: {
-            gte: twentyFourHoursAgo,
-          },
-        },
-        orderBy: { createdAt: "desc" },
-        select: { createdAt: true },
-      });
-
-      console.log(chatMessageCount);
-
-      let cooldown = 0;
-      if (latestMessage?.createdAt) {
-        const msSinceLast =
-          Date.now() - new Date(latestMessage.createdAt).getTime();
-        cooldown = Math.max(0, 24 * 60 * 60 * 1000 - msSinceLast);
-      }
-
-      const formatTime = (ms: number) => {
-        const totalSeconds = Math.ceil(ms / 1000);
-        const hours = Math.floor(totalSeconds / 3600);
-        const minutes = Math.floor((totalSeconds % 3600) / 60);
-        const seconds = totalSeconds % 60;
-        return `${hours}h ${minutes}m ${seconds}s`;
-      };
-
+      const cooldown = await calculateCoolDownPeriod(
+        userId,
+        twentyFourHoursAgo
+      );
+      // Return Response
       return new Response(
         JSON.stringify({
           error:
@@ -204,9 +178,7 @@ export async function POST(req: Request) {
     </CONTEXT>`,
       messages,
       onFinish: async (result) => {
-        // Save AI response when streaming is complete
         try {
-          // Save AI response when streaming is complete
           await prisma.message.create({
             data: {
               chatId: chatId,
@@ -216,11 +188,9 @@ export async function POST(req: Request) {
           });
         } catch (dbError: any) {
           console.error("Database error saving assistant message:", dbError);
-          // Don't throw here as the streaming has already started
         }
       },
     });
-    // Return the streamed response
     return new NextResponse(result.toDataStream());
   } catch (error: any) {
     console.error("Chat API Error:", error);

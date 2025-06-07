@@ -1,10 +1,15 @@
 "use client";
 
 import { useChat, Message } from "@ai-sdk/react";
-import { useEffect, useRef, useState } from "react";
-import ReactMarkdown from "react-markdown";
+import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { useAuth } from "@clerk/nextjs";
+import { useRouter } from "next/navigation";
+
+import { SidebarTrigger } from "@/components/ui/sidebar";
+import ErrorCard from "../_components/error-card";
+import ChatMessagesList from "../_components/chat-messages";
+import ChatLoadingPage from "../_components/chat-loading-skeleton";
 
 export default function Page() {
   const params = useParams();
@@ -13,9 +18,9 @@ export default function Page() {
   const [initialMessages, setInitialMessages] = useState<Message[] | null>(
     null
   );
-  const messagesContainerRef = useRef<HTMLDivElement>(null);
 
   const { userId } = useAuth();
+  const router = useRouter();
 
   // Load messages once on mount
   useEffect(() => {
@@ -24,6 +29,7 @@ export default function Page() {
         const res = await fetch(`/api/messages?chatId=${chatId}`);
         if (res.ok) {
           const existingMessages = await res.json();
+          console.log(existingMessages);
 
           // Filter only valid messages
           const formattedMessages = existingMessages?.messages
@@ -38,9 +44,11 @@ export default function Page() {
           setInitialMessages(formattedMessages);
         } else {
           console.error("Failed to load messages");
+          router.push("/chat");
         }
       } catch (err) {
         console.error("Error fetching messages", err);
+        router.push("/chat");
       }
     };
 
@@ -48,88 +56,44 @@ export default function Page() {
   }, [chatId]);
 
   // Only render the hook after messages are loaded
-  const { messages, input, setInput, append, error } = useChat(
+  const { messages, input, setInput, append, error, isLoading } = useChat(
     initialMessages !== null
       ? {
           api: "/api/chat",
           initialMessages,
           body: { chatId, userId },
-          onError: (error) => console.error("Chat error:", error),
+          onError: (error) => console.error("Chat error:", error.message),
         }
       : {}
   );
 
-  useEffect(() => {
-    if (messagesContainerRef.current) {
-      messagesContainerRef.current.scrollTo({
-        top: messagesContainerRef.current.scrollHeight,
-        behavior: "smooth",
-      });
-    }
-  }, [messages]);
-
-  if (initialMessages === null) {
-    return <div className="p-6">Loading chat...</div>;
-  }
+  console.log(isLoading);
 
   return (
     <div className="flex flex-col h-screen">
-      {error && (
-        <div className="bg-red-100 text-red-700 px-4 py-2 rounded mb-2 mx-6">
-          {error.message || "An error occurred while fetching messages."}
+      {error && <ErrorCard message={error.message} />}
+
+      <div className="p-5 flex items-center gap-3 border-b bg-white">
+        <SidebarTrigger className="border-1 cursor-pointer p-4" />
+        <h1 className="text-lg font-semibold truncate">Chat: {chatId}</h1>
+      </div>
+
+      {initialMessages ? (
+        <ChatMessagesList messages={messages} />
+      ) : (
+        <ChatLoadingPage />
+      )}
+
+      {isLoading && (
+        <div className="mt-2 flex items-center space-x-2">
+          <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce [animation-delay:-0.32s]"></span>
+          <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce [animation-delay:-0.16s]"></span>
+          <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></span>
+          <span className="ml-2 text-xs text-gray-400">Please wait...</span>
         </div>
       )}
 
-      <div className="px-6 py-2 bg-gray-100 text-sm text-gray-600">
-        Chat ID: {chatId}
-      </div>
-
-      <div
-        ref={messagesContainerRef}
-        className="flex-1 overflow-y-auto p-6 space-y-4"
-      >
-        {messages.map((message, index) => (
-          <div
-            key={index}
-            className={`flex ${
-              message.role === "user" ? "justify-end" : "justify-start"
-            }`}
-          >
-            <div
-              className={`max-w-[70%] px-4 py-2 rounded-lg shadow prose prose-sm ${
-                message.role === "user"
-                  ? "bg-blue-500 text-white rounded-br-none prose-invert"
-                  : "bg-white text-gray-800 rounded-bl-none border"
-              }`}
-            >
-              <ReactMarkdown
-                components={{
-                  p: ({ children }) => (
-                    <p className="mb-2 last:mb-0">{children}</p>
-                  ),
-                  strong: ({ children }) => (
-                    <strong className="font-bold">{children}</strong>
-                  ),
-                  em: ({ children }) => <em className="italic">{children}</em>,
-                  code: ({ children }) => (
-                    <code className="bg-gray-100 text-gray-800 px-1 py-0.5 rounded text-sm font-mono">
-                      {children}
-                    </code>
-                  ),
-                  pre: ({ children }) => (
-                    <pre className="bg-gray-100 text-gray-800 p-2 rounded text-sm font-mono overflow-x-auto">
-                      {children}
-                    </pre>
-                  ),
-                }}
-              >
-                {message.content}
-              </ReactMarkdown>
-            </div>
-          </div>
-        ))}
-      </div>
-
+      {/* // message form submit*/}
       <div className="p-4 border-t bg-white">
         <form
           onSubmit={async (e) => {
@@ -153,12 +117,13 @@ export default function Page() {
           />
           <button
             type="submit"
-            className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-full transition shadow"
+            className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-full transition shadow cursor-pointer"
           >
             Send
           </button>
         </form>
       </div>
+      {/* // file form submit div */}
     </div>
   );
 }
