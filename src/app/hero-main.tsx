@@ -1,5 +1,3 @@
-"use client"
-
 import React from "react";
 import { SignInButton, SignedIn, SignedOut} from "@clerk/nextjs";
 import { ArrowRight } from "lucide-react";
