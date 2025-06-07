@@ -1,12 +1,10 @@
 "use client";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
-import { useAuth, UserButton } from "@clerk/nextjs";
-import React, { ReactNode, useState } from "react";
+import { useAuth } from "@clerk/nextjs";
+import React, { useState } from "react";
 
-type Props = {};
-
-const ChatListPage = (props: Props) => {
+const ChatListPage = () => {
   const router = useRouter();
   const [chatThreads, setChatThreads] = useState([]);
 
@@ -23,13 +21,13 @@ const ChatListPage = (props: Props) => {
           setChatThreads(data.chats);
         }
         console.log("hey");
-      } catch (error) {
+      } catch {
         // handle error if needed
         setChatThreads([]);
       }
     }
     fetchChats();
-  }, [userId]);
+  }, [userId, router]);
 
   const handleChatClick = (threadId: string) => {
     router.push(`/chat/${threadId}`);
@@ -41,7 +39,7 @@ const ChatListPage = (props: Props) => {
           No chats yet
         </div>
       ) : (
-        chatThreads.map((chat: any) => (
+        chatThreads.map((chat: { id: string; title: string }) => (
           <div
             key={chat.id}
             className="flex items-center gap-3 p-2 rounded-lg cursor-pointer hover:bg-accent transition-colors border border-border"

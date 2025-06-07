@@ -1,10 +1,11 @@
 "use client";
 
+import { UIMessage } from "ai";
 import React, { useEffect, useRef } from "react";
 import ReactMarkdown from "react-markdown";
 
 type Props = {
-  messages: any[];
+  messages: UIMessage[];
 };
 
 const ChatMessagesList = ({ messages }: Props) => {

@@ -95,11 +95,13 @@ export async function POST(req: NextRequest) {
       message: "Successfully process pdf now ready to chat.",
       chatId: chat.id,
     });
-  } catch (error: any) {
+  } catch (error) {
     console.log("Error processing pdf:, ", error);
     return NextResponse.json(
       {
-        error: `Error processing pdf to text: ${error.message}`,
+        error: `Error processing pdf to text: ${
+          error instanceof Error && error.message
+        }`,
       },
       {
         status: 400,
