@@ -33,10 +33,12 @@ export async function POST(req: NextRequest) {
       },
       { status: 200 }
     );
-  } catch (err: any) {
+  } catch (err) {
     console.log(err);
     return NextResponse.json(
-      { error: err?.message || "Internal server error" },
+      {
+        error: (err instanceof Error && err.message) || "Internal server error",
+      },
       { status: 500 }
     );
   }

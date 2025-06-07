@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/prisma"; // Adjust the import path as needed
+import { prisma } from "@/lib/prisma";
 
 export const POST: (req: Request) => Promise<Response> = async (
   req: Request

@@ -32,11 +32,12 @@ export default function Page() {
           console.log(existingMessages);
 
           // Filter only valid messages
+          type Msg = { role: "user" | "assistant"; content: string };
           const formattedMessages = existingMessages?.messages
             .filter(
-              (msg: any) => msg.role === "user" || msg.role === "assistant"
+              (msg: Msg) => msg.role === "user" || msg.role === "assistant"
             )
-            .map((msg: any) => ({
+            .map((msg: Msg) => ({
               role: msg.role,
               content: msg.content,
             }));
@@ -53,7 +54,7 @@ export default function Page() {
     };
 
     loadMessages();
-  }, [chatId]);
+  }, [chatId, router]);
 
   // Only render the hook after messages are loaded
   const { messages, input, setInput, append, error, isLoading } = useChat(

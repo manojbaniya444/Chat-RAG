@@ -57,9 +57,9 @@ const ChatRootPage = () => {
         setStatus(null);
         return;
       }
-      setStatus("done");
       router.push(`/chat/${embedResParseData.chatId}`);
-    } catch (error) {
+      setStatus("done");
+    } catch {
       setStatus(null);
       setError("Error processing PDF");
     }
@@ -86,9 +86,11 @@ const ChatRootPage = () => {
         const { url, path } = await res.json();
         uploadToSupabaseAndProcess(url, path);
       }
-    } catch (err: any) {
+    } catch (err) {
       setStatus(null);
-      setError(err.message || "Error getting signed url");
+      setError(
+        (err instanceof Error && err.message) || "Error getting signed url"
+      );
     }
   };
 
@@ -113,15 +115,20 @@ const ChatRootPage = () => {
   }, []);
 
   // on drop any error
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const onDropRejected = useCallback((fileRejections: any[]) => {
     if (
       fileRejections.length > 0 &&
-      fileRejections[0].errors.some((e: any) => e.code === "file-too-large")
+      fileRejections[0].errors.some(
+        (e: { code: string; message: string }) => e.code === "file-too-large"
+      )
     ) {
       setError("File size exceeds 5 MB.");
     } else if (
       fileRejections.length > 0 &&
-      fileRejections[0].errors.some((e: any) => e.code === "file-invalid-type")
+      fileRejections[0].errors.some(
+        (e: { code: string; message: string }) => e.code === "file-invalid-type"
+      )
     ) {
       setError("Only PDF files are allowed.");
     } else {
@@ -209,7 +216,7 @@ const ChatRootPage = () => {
           {selectedFile && (!status || status === "done") && (
             <Button
               type="button"
-              className="w-full mt-6"
+              className="w-full mt-6 cursor-pointer"
               onClick={handleFileSubmit}
               disabled={!!status && status !== "done"}
             >

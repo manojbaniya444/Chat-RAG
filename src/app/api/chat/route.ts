@@ -31,9 +31,9 @@ export async function GET(req: NextRequest) {
       },
     });
     return NextResponse.json({ chats });
-  } catch (error: any) {
+  } catch (error: Error | unknown) {
     return NextResponse.json(
-      { error: error?.message || "Unknown error" },
+      { error: (error instanceof Error && error.message) || "Unknown error" },
       { status: 500 }
     );
   }
@@ -139,14 +139,13 @@ export async function POST(req: Request) {
           content: latestUserMessage.content,
         },
       });
-    } catch (dbError: any) {
+    } catch (dbError) {
       console.error("Database error saving user message:", dbError);
       return new Response(JSON.stringify({ error: "Failed to save message" }), {
         status: 500,
         headers: { "Content-Type": "application/json" },
       });
     }
-    console.log(latestUserMessage);
 
     // rephrase the user message using the history for better retrieval
 
@@ -186,16 +185,19 @@ export async function POST(req: Request) {
               content: result.text,
             },
           });
-        } catch (dbError: any) {
+        } catch (dbError: Error | unknown) {
           console.error("Database error saving assistant message:", dbError);
         }
       },
     });
     return new NextResponse(result.toDataStream());
-  } catch (error: any) {
+  } catch (error: Error | unknown) {
     console.error("Chat API Error:", error);
     return new Response(
-      JSON.stringify({ error: error?.message || "Unknown error occurred" }),
+      JSON.stringify({
+        error:
+          (error instanceof Error && error.message) || "Unknown error occurred",
+      }),
       { status: 500, headers: { "Content-Type": "application/json" } }
     );
   }

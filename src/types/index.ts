@@ -1,6 +1,6 @@
 export type TextChunk = {
   pageContent: string;
-  metadata: Record<string, any>;
+  metadata: Record<string, unknown>;
 };
 
 export type EmbeddingTask =
@@ -15,12 +15,12 @@ export type RetrieveOptions = {
   vector: number[];
   topK?: number;
   chatId: string;
-  filter?: Record<string, any>;
+  filter?: Record<string, unknown>;
 };
 
 export type TextChunkMetadata = {
   page: number;
   text: string;
   chat_id: string;
-  [key: string]: any;
+  [key: string]: unknown;
 };

@@ -1,4 +1,4 @@
-// Sanitize metadata for Pinecone (flatten and stringify nested objects)
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export function sanitizeMetadata(
   metadata: Record<string, any>
 ): Record<string, any> {

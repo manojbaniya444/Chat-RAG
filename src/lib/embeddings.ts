@@ -23,8 +23,12 @@ async function fetchJinaEmbeddings(
         task,
       }),
     });
-  } catch (error: any) {
-    throw new Error(`Failed to fetch from Jina API: ${error.message}`);
+  } catch (error: Error | unknown) {
+    throw new Error(
+      `Failed to fetch from Jina API: ${
+        error instanceof Error && error.message
+      }`
+    );
   }
 
   if (!response.ok) {
@@ -48,7 +52,7 @@ export async function getEmbeddings(
 ): Promise<
   {
     embedding: number[];
-    metadata: Record<string, any>;
+    metadata: Record<string, unknown>;
   }[]
 > {
   const texts = textChunks.map((chunk) => chunk.pageContent);
