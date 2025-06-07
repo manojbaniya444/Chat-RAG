@@ -15,7 +15,7 @@ export function AppSidebar() {
     <Sidebar>
       {/* // upload button and user profile logout content */}
       <SidebarHeader>
-        <div className="p-2 border-b border-border flex items-center justify-center gap-4 ">
+        <div className="p-2 border-b border-border flex items-center justify-center gap-4">
           <Link href="/chat" className="flex-1">
             <button
               className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-md border border-input bg-background text-sm hover:bg-accent transition-colors cursor-pointer"

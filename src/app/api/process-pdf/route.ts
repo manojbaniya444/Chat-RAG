@@ -89,6 +89,12 @@ export async function POST(req: NextRequest) {
     await pineconeIndex.describeIndexStats();
 
     await pineconeIndex.upsert(vectors);
+
+    return NextResponse.json({
+      success: true,
+      message: "Successfully process pdf now ready to chat.",
+      chatId: chat.id,
+    });
   } catch (error: any) {
     console.log("Error processing pdf:, ", error);
     return NextResponse.json(
@@ -100,9 +106,4 @@ export async function POST(req: NextRequest) {
       }
     );
   }
-
-  return NextResponse.json({
-    success: true,
-    message: "Successfully process pdf now ready to chat.",
-  });
 }
