@@ -1,48 +1,46 @@
 "use client";
-import React, { ReactNode, useState } from "react";
-import { useRouter } from "next/navigation";
-import { useEffect } from "react";
-import { useAuth, UserButton } from "@clerk/nextjs";
+import React, { ReactNode } from "react";
+import SidebarPage from "./_components/sidebar";
 
 type ChatLayoutProps = {
   children: ReactNode;
 };
 
 export default function ChatLayout({ children }: ChatLayoutProps) {
-  const router = useRouter();
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [chatThreads, setChatThreads] = useState([]);
+  // const router = useRouter();
+  // const [sidebarOpen, setSidebarOpen] = useState(false);
+  // const [chatThreads, setChatThreads] = useState([]);
 
-  const { userId } = useAuth();
+  // const { userId } = useAuth();
 
-  useEffect(() => {
-    async function fetchChats() {
-      try {
-        const res = await fetch(`/api/chat?userId=${userId}`);
-        if (res.ok) {
-          const data = await res.json();
-          console.log(data);
-          console.log(userId);
-          setChatThreads(data.chats);
-        }
-        console.log("hey");
-      } catch (error) {
-        // handle error if needed
-        setChatThreads([]);
-      }
-    }
-    fetchChats();
-  }, [userId]);
+  // useEffect(() => {
+  //   async function fetchChats() {
+  //     try {
+  //       const res = await fetch(`/api/chat?userId=${userId}`);
+  //       if (res.ok) {
+  //         const data = await res.json();
+  //         console.log(data);
+  //         console.log(userId);
+  //         setChatThreads(data.chats);
+  //       }
+  //       console.log("hey");
+  //     } catch (error) {
+  //       // handle error if needed
+  //       setChatThreads([]);
+  //     }
+  //   }
+  //   fetchChats();
+  // }, [userId]);
 
-  const handleChatClick = (threadId: string) => {
-    setSidebarOpen(false);
-    router.push(`/chat/${threadId}`);
-  };
+  // const handleChatClick = (threadId: string) => {
+  //   setSidebarOpen(false);
+  //   router.push(`/chat/${threadId}`);
+  // };
 
   return (
     <div className="flex h-screen justify-center bg-background">
       {/* Sidebar for md+ screens */}
-      <aside
+      {/* <aside
         className="
                     hidden
                     md:flex
@@ -79,10 +77,11 @@ export default function ChatLayout({ children }: ChatLayoutProps) {
             ))}
           </ul>
         </div>
-      </aside>
+      </aside> */}
+      <SidebarPage />
 
       {/* Sidebar modal for small screens */}
-      {sidebarOpen && (
+      {/* {sidebarOpen && (
         <div className="fixed inset-0 z-50 flex md:hidden">
           <div
             className="absolute inset-0 bg-black/40"
@@ -126,7 +125,7 @@ export default function ChatLayout({ children }: ChatLayoutProps) {
             </div>
           </aside>
         </div>
-      )}
+      )} */}
 
       {/* Main Content */}
       <main
@@ -143,13 +142,13 @@ export default function ChatLayout({ children }: ChatLayoutProps) {
         }}
       >
         {/* Show sidebar toggle button on small screens */}
-        <button
+        {/* <button
           className="md:hidden absolute top-4 left-4 z-10 p-2 rounded bg-muted border border-border shadow"
           onClick={() => setSidebarOpen(true)}
           aria-label="Open sidebar"
         >
           ☰
-        </button>
+        </button> */}
         {children}
       </main>
     </div>
