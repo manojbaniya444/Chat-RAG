@@ -7,6 +7,7 @@ import { useParams } from "next/navigation";
 import { useAuth } from "@clerk/nextjs";
 
 import { SidebarTrigger } from "@/components/ui/sidebar";
+import ErrorCard from "../_components/error-card";
 
 export default function Page() {
   const params = useParams();
@@ -56,7 +57,7 @@ export default function Page() {
           api: "/api/chat",
           initialMessages,
           body: { chatId, userId },
-          onError: (error) => console.error("Chat error:", error),
+          onError: (error) => console.error("Chat error:", error.message),
         }
       : {}
   );
@@ -76,14 +77,10 @@ export default function Page() {
 
   return (
     <div className="flex flex-col h-screen">
-      {error && (
-        <div className="bg-red-100 text-red-700 px-4 py-2 rounded mb-2 mx-6">
-          {error.message || "An error occurred while fetching messages."}
-        </div>
-      )}
+      {error && <ErrorCard message={error.message} />}
 
       <nav className="p-5 flex items-center gap-3 border-b bg-white">
-          <SidebarTrigger className="border-1 cursor-pointer p-4"/>
+        <SidebarTrigger className="border-1 cursor-pointer p-4" />
         <h1 className="text-lg font-semibold truncate">Chat: {chatId}</h1>
       </nav>
 

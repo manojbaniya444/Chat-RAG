@@ -5,8 +5,18 @@ import { prisma } from "@/lib/prisma";
 import { getQueryEmbedding } from "@/lib/embeddings";
 import { retrieveFromPinecone } from "@/lib/pinecone";
 
+const formatTime = (ms: number) => {
+  const totalSeconds = Math.ceil(ms / 1000);
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+  return `${hours}h ${minutes}m ${seconds}s`;
+};
+
+// GET: All the chat list for the specific userID
 export async function GET(req: NextRequest) {
   const userId = req.nextUrl.searchParams.get("userId");
+
   if (!userId) {
     return NextResponse.json({ error: "user_id is required" }, { status: 400 });
   }
@@ -31,6 +41,9 @@ export async function GET(req: NextRequest) {
   }
 }
 
+// POST: Handle user submit Input Message
+// Get the message, verify UserId and ChatId, Embed Query, Retrieve and Generate Stream Response.
+// Use of JOB QUEUE is suitable here
 export async function POST(req: Request) {
   try {
     const {
@@ -85,6 +98,7 @@ export async function POST(req: Request) {
       },
     });
 
+    // Limiting the chat messages per chat count to 15 due to the long context and free tier model Context Size limitation.
     if (chatMessageCount > 15) {
       return new Response(
         JSON.stringify({
@@ -98,6 +112,7 @@ export async function POST(req: Request) {
       );
     }
 
+    // Limit the total messages per user to 25 per day.
     if (messageCount > 50) {
       const latestMessage = await prisma.message.findFirst({
         where: {
@@ -122,14 +137,7 @@ export async function POST(req: Request) {
         cooldown = Math.max(0, 24 * 60 * 60 * 1000 - msSinceLast);
       }
 
-      const formatTime = (ms: number) => {
-        const totalSeconds = Math.ceil(ms / 1000);
-        const hours = Math.floor(totalSeconds / 3600);
-        const minutes = Math.floor((totalSeconds % 3600) / 60);
-        const seconds = totalSeconds % 60;
-        return `${hours}h ${minutes}m ${seconds}s`;
-      };
-
+      // Return Response
       return new Response(
         JSON.stringify({
           error:

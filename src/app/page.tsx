@@ -1,10 +1,4 @@
-import {
-  SignOutButton,
-  SignInButton,
-  SignedIn,
-  SignedOut,
-  UserButton,
-} from "@clerk/nextjs";
+import { SignInButton, SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
@@ -41,7 +35,7 @@ export default function HomePage() {
           <SignedOut>
             <SignInButton mode="modal">
               <Button variant="outline" className="flex items-center h-full">
-          Sign In
+                Sign In
               </Button>
             </SignInButton>
           </SignedOut>
