@@ -48,8 +48,8 @@ https://github.com/user-attachments/assets/2467120d-8edf-4d5b-8496-86e42d07056d
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/yourusername/chat-with-pdf.git
-cd chat-with-pdf
+git clone https://github.com/manojbaniya444/Chat-RAG.git
+cd Chat-RAG
 ```
 
 ### 2. Install Dependencies
