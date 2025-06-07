@@ -20,7 +20,7 @@ const HeaderPage = () => {
             PDF
           </text>
         </svg>
-        <span className="font-bold text-xl text-slate-800">ChatWith PDF</span>
+        <span className="font-bold text-xs md:text-xl text-slate-800">ChatWith PDF</span>
       </div>
       <nav className="flex items-center gap-4 justify-center p-1 h-full">
         <a
