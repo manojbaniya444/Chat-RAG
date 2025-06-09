@@ -58,23 +58,29 @@ cd Chat-RAG
 npm install
 ```
 
-### 3. Set Up Prisma
+### 3. Fill the .env.example and rename it to .env
+
+Includes all the API keys and Tokens
+
+### 4. Set Up Prisma
 
 ```bash
 npx prisma generate
 ```
 
-### 4. Run Database Migrations
+### 5. Run Database Migrations
 
 ```bash
 npx prisma migrate dev
 ```
 
-### 5. Fill the .env.example and rename it to .env
+### 6. Include Clerk `user.created` webhook endpoint.
 
-Includes all the API keys and Tokens
+```js
+In clerk config add your local endpoint: `<tunnel_ngrok_base_url>/api/clerk/webhook`
+```
 
-### 6. Start Development Server
+### 7. Start Development Server
 
 ```bash
 npm run dev
