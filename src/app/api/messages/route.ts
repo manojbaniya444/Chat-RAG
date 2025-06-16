@@ -7,7 +7,14 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "chatId is required" }, { status: 400 });
   }
 
-  const chat = await prisma.chat.findUnique({ where: { id: chatId } });
+  const chat = await prisma.chat.findUnique({ 
+    where: { id: chatId },
+    select: {
+      id: true,
+      title: true,
+      summary: true
+    }
+  });
   if (!chat) {
     return NextResponse.json({ error: "Chat not found" }, { status: 404 });
   }
@@ -23,7 +30,14 @@ export async function GET(req: NextRequest) {
         createdAt: true,
       },
     });
-    return NextResponse.json({ messages });
+    return NextResponse.json({ 
+      messages,
+      chat: {
+        id: chat.id,
+        title: chat.title,
+        summary: chat.summary
+      }
+    });
   } catch (error: Error | unknown) {
     return NextResponse.json(
       { error: (error instanceof Error && error.message) || "Unknown error" },

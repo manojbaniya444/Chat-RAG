@@ -1,111 +1,279 @@
-# Chat with PDF
+# ChatWithPDF - Intelligent Document Conversations
 
-Chat with your PDF using RAG (Retrieval Augmented Generation) powered by Vercel AI SDK, Pinecone, Groq and JINA Embeddings Provider with Clerk for authentication, Supabase for storage, and Postgres as the primary database.
+A modern, enterprise-grade Next.js application that enables users to upload PDF documents and engage in intelligent conversations with them using advanced AI technology. Built with industry best practices, clean architecture, and scalable design patterns.
 
-![Chat with PDF Screenshot](./public/pdf-rag-chat.png)
+## 🚀 Features
 
-## Overview
+### Core Functionality
+- **Smart PDF Upload**: Drag & drop interface with real-time validation and progress tracking
+- **Intelligent Text Processing**: Advanced text extraction and chunking with semantic understanding
+- **AI-Powered Conversations**: Context-aware chat interface with document-specific responses
+- **Vector Search**: Semantic search across document content using Pinecone vector database
+- **Real-time Streaming**: Live AI responses with streaming capabilities
 
-**Chat with PDF** is a web app that allows users to upload a single PDF and have a conversational experience with it.
+### User Experience
+- **Secure Authentication**: Enterprise-grade authentication with Clerk
+- **Responsive Design**: Optimized for desktop, tablet, and mobile devices
+- **Rate Limiting**: Intelligent rate limiting to prevent abuse
+- **Error Handling**: Comprehensive error boundaries and user-friendly error messages
+- **Loading States**: Smooth transitions and loading indicators
 
-Features:
+### Developer Experience
+- **Type Safety**: Full TypeScript implementation with strict type checking
+- **Server Components**: Leveraging Next.js 15 App Router with Server Components
+- **Server Actions**: Modern form handling and mutations with Server Actions
+- **Clean Architecture**: Separation of concerns with service layers and validation
 
-- Upload a PDF and start chatting with it.
-- Authenticated access via Clerk.
-- Data stored in PostgreSQL.
-- Vector embeddings managed via Pinecone.
-- Secure and efficient PDF uploads using Supabase Storage signed URLs.
-- PDFs processed with LangChain's text splitter (2000-character chunks).
-- Rate-limited free-tier usage with:
-  - ⛔ Max 25 messages/day per user.
-  - ⛔ Max 15 messages per individual PDF chat.
+## 🏗️ Architecture
 
-> Note: Supports chatting with one PDF at a time. Best used as a lightweight mini-RAG app.
+### Technology Stack
 
----
+#### Frontend
+- **Next.js 15**: App Router with React Server Components
+- **React 19**: Latest React features with modern patterns
+- **TypeScript**: Strict type safety and developer experience
+- **Tailwind CSS**: Utility-first styling with custom design system
 
-## Demo Video
+#### Backend & Services
+- **Prisma ORM**: Type-safe database operations with PostgreSQL
+- **Clerk Authentication**: Secure user management and authentication
+- **Supabase Storage**: Scalable file storage with signed URLs
+- **Pinecone Vector DB**: High-performance vector search and embeddings
+- **Groq AI**: Fast AI completions with streaming support
 
-Watch a quick demo of **Chat with PDF** in action:
+#### Validation & Security
+- **Zod**: Runtime type validation and schema validation
+- **Rate Limiting**: Built-in rate limiting service
+- **Input Sanitization**: Comprehensive input validation and sanitization
+- **Error Boundaries**: Client-side error handling and recovery
 
-https://github.com/user-attachments/assets/2467120d-8edf-4d5b-8496-86e42d07056d
+### Project Structure
 
-## Tech Stack
-
-- **Framework**: Next.js (App Router)
-- **Auth**: Clerk Auth
-- **Storage**: Supabase Bucket + Signed URLs, SQL Database
-- **Vector DB**: Pinecone
-- **RAG Framework**: Vercel AI SDK, Groq and Langchain
-- **Database**: PostgreSQL via Prisma ORM
-- **Rate Limiting**: Message counting using DB queries
-- **PDF Parsing**: PDF parser and text splitter (2000-character chunks) using Langchain
-
----
-
-## Local Development Setup
-
-### 1. Clone the Repository
-
-```bash
-git clone https://github.com/manojbaniya444/Chat-RAG.git
-cd Chat-RAG
+```
+src/
+├── app/                          # Next.js App Router
+│   ├── (auth)/                  # Authentication pages
+│   ├── chat/                    # Chat application
+│   │   ├── [id]/               # Individual chat pages
+│   │   └── _components/        # Chat-specific components
+│   ├── api/                    # Legacy API routes (being phased out)
+│   ├── layout.tsx              # Root layout with providers
+│   └── page.tsx                # Landing page
+├── components/                  # Reusable UI components
+│   ├── layout/                 # Layout components (Header, Footer)
+│   ├── pdf/                    # PDF-specific components
+│   ├── ui/                     # Base UI components (shadcn/ui)
+│   └── error-boundary.tsx      # Error handling components
+├── lib/                        # Core library functions
+│   ├── actions/                # Server Actions
+│   │   ├── chat.actions.ts     # Chat-related server actions
+│   │   └── pdf.actions.ts      # PDF processing actions
+│   ├── services/               # Business logic services
+│   │   ├── chat.service.ts     # Chat operations
+│   │   ├── pdf.service.ts      # PDF processing
+│   │   └── rate-limit.service.ts # Rate limiting
+│   ├── validations.ts          # Zod schemas and validation
+│   ├── embeddings.ts           # AI embeddings operations
+│   ├── pinecone.ts             # Vector database operations
+│   ├── prisma.ts               # Database client
+│   └── supabaseClient.ts       # Storage client
+├── hooks/                      # Custom React hooks
+├── types/                      # TypeScript type definitions
+├── utils/                      # Utility functions
+└── middleware.ts               # Clerk authentication middleware
 ```
 
-### 2. Install Dependencies
+## 🛠️ Service Layer Architecture
 
+### Chat Service (`ChatService`)
+- User chat management with caching
+- Message operations with rate limiting
+- Chat history and metadata management
+- Database query optimization
+
+### PDF Service (`PDFService`)
+- File upload and processing pipeline
+- Text extraction and chunking
+- Vector embedding generation
+- Storage management with cleanup
+
+### Rate Limiting Service (`RateLimitService`)
+- Per-user message limits (25/day)
+- Per-chat message limits (15/chat)
+- Upload rate limiting (5/hour)
+- Cooldown period management
+
+## 🔧 Getting Started
+
+### Prerequisites
+
+- **Node.js** 18+ and npm/yarn
+- **PostgreSQL** database
+- **Clerk** account for authentication
+- **Supabase** account for file storage
+- **Pinecone** account for vector database
+- **Groq** API key for AI completions
+
+### Environment Setup
+
+Create a `.env.local` file:
+
+```env
+# Database
+DATABASE_URL="postgresql://username:password@localhost:5432/chatpdf"
+
+# Clerk Authentication
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_...
+CLERK_SECRET_KEY=sk_test_...
+NEXT_PUBLIC_CLERK_SIGN_IN_URL=/sign-in
+NEXT_PUBLIC_CLERK_SIGN_UP_URL=/sign-up
+
+# Supabase Storage
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJ...
+SUPABASE_SERVICE_ROLE_KEY=eyJ...
+SUPABASE_BUCKET_ID=pdf-documents
+
+# Pinecone Vector Database
+PINECONE_API_KEY=your-pinecone-key
+PINECONE_INDEX_NAME=chatpdf-embeddings
+
+# Groq AI
+GROQ_API_KEY=gsk_...
+```
+
+### Installation & Setup
+
+1. **Clone and Install**:
 ```bash
+git clone <repository-url>
+cd chatdoc
 npm install
 ```
 
-### 3. Fill the .env.example and rename it to .env
-
-Includes all the API keys and Tokens
-
-### 4. Set Up Prisma
-
+2. **Database Setup**:
 ```bash
 npx prisma generate
+npx prisma db push
 ```
 
-### 5. Run Database Migrations
-
-```bash
-npx prisma migrate dev
-```
-
-### 6. Include Clerk `user.created` webhook endpoint.
-
-```js
-In clerk config add your local endpoint: `<tunnel_ngrok_base_url>/api/clerk/webhook`
-```
-
-### 7. Start Development Server
-
+3. **Development Server**:
 ```bash
 npm run dev
 ```
 
-## Design
+4. **Production Build**:
+```bash
+npm run build
+npm start
+```
 
-**Secure Uploads with Signed URL**
-Supabase's signed URL mechanism ensures the PDF upload process is secure and efficient without exposing public access.
+## 📊 Performance & Limits
 
-**Efficient Chunking and Retrieval**
-Uploaded PDFs are processed using Langchains text splitter with 2000 character chunks to balance retrieval performance and context size.
+### Rate Limits
+- **Daily Messages**: 25 messages per user per 24 hours
+- **Chat Messages**: 15 messages maximum per chat session
+- **File Uploads**: 5 uploads per user per hour
+- **File Size**: 5MB maximum per PDF
 
-**Basic Rate Limiting**
-Each user is limited to 25 messages per day and 15 messages per PDF chat.
+### Performance Optimizations
+- **Server Components**: Reduced client-side JavaScript
+- **Caching**: React cache for database queries
+- **Streaming**: Real-time AI response streaming
+- **Lazy Loading**: Component-level code splitting
+- **Image Optimization**: Next.js automatic image optimization
 
-**Auth with Clerk**
-Clerk is seamlessly integrated with NEXT js to handle user auth and it is secure easy to manage and well suited for next js projects.
+## 🧪 Testing & Quality
 
-## Improvements to be made:
+### Code Quality
+- **ESLint**: Strict linting rules with Next.js configuration
+- **TypeScript**: Strict mode with comprehensive type coverage
+- **Error Boundaries**: Comprehensive error handling
+- **Input Validation**: Zod schemas for all inputs
 
-- Async Queues (e.g BullMQ, RabbitMQ or any Queue) to process PDF ingestion and embedding for better scalability.
+### Security Features
+- **Authentication**: Clerk-powered secure authentication
+- **Authorization**: Server-side route protection
+- **Input Sanitization**: All user inputs validated and sanitized
+- **Rate Limiting**: Built-in abuse prevention
+- **CORS**: Proper cross-origin resource sharing
 
-- Server actions for the chat component which now is built with traiditional React based Client Component (can Improve performance and better user experience)
+## 🚀 Deployment
 
-- Redis in memory data store to limit user instead of performing db query to count messages count. But for simplicity used db query.
+### Recommended Platforms
+- **Vercel**: Optimized for Next.js with zero-config deployment
+- **Railway**: Easy database and application deployment
+- **Supabase**: Managed PostgreSQL with built-in features
 
-- Multi-PDF converstaions for more advance document based chat sessions.
+### Environment Variables for Production
+Ensure all environment variables are properly configured in your deployment platform.
+
+## 🤝 Contributing
+
+We welcome contributions! Please follow these guidelines:
+
+1. **Fork & Branch**: Create a feature branch from `main`
+2. **Code Style**: Follow the existing code style and conventions
+3. **Type Safety**: Ensure all code is properly typed
+4. **Testing**: Add tests for new features
+5. **Documentation**: Update documentation for changes
+6. **Pull Request**: Create a descriptive PR with clear goals
+
+### Development Workflow
+```bash
+# Create feature branch
+git checkout -b feature/your-feature-name
+
+# Make changes and commit
+git add .
+git commit -m "feat: add your feature description"
+
+# Push and create PR
+git push origin feature/your-feature-name
+```
+
+## 📄 API Documentation
+
+### Server Actions
+
+#### Chat Actions
+- `getChatsAction()`: Retrieve user's chat list
+- `getChatWithMessagesAction(chatId)`: Get chat with messages
+- `deleteChatAction(formData)`: Delete a chat
+- `updateChatTitleAction(chatId, title)`: Update chat title
+
+#### PDF Actions
+- `uploadAndProcessPdfAction(formData)`: Complete PDF upload workflow
+- `generateUploadUrlAction(formData)`: Generate signed upload URL
+- `processPdfAction(formData)`: Process uploaded PDF
+
+## 📋 Roadmap
+
+### Upcoming Features
+- [ ] Multiple file format support (Word, PowerPoint, etc.)
+- [ ] Advanced search and filtering
+- [ ] Chat export functionality
+- [ ] Team collaboration features
+- [ ] API for third-party integrations
+- [ ] Mobile app development
+
+### Performance Improvements
+- [ ] Background job processing
+- [ ] Enhanced caching strategies
+- [ ] CDN integration
+- [ ] Database query optimization
+
+## 📞 Support
+
+For support, feature requests, or bug reports:
+- Create an issue on GitHub
+- Contact: [support@chatwithpdf.com](mailto:support@chatwithpdf.com)
+- Documentation: [docs.chatwithpdf.com](https://docs.chatwithpdf.com)
+
+## 📜 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
+
+**Built with ❤️ using modern web technologies and best practices.** 
