@@ -252,7 +252,7 @@ git commit -m "feat: add your feature description"
 git push origin feature/your-feature-name
 ```
 
-## 📄 API Documentation
+## API Documentation
 
 ### Server Actions
 
@@ -268,21 +268,3 @@ git push origin feature/your-feature-name
 - `uploadAndProcessPdfAction(formData)`: Complete PDF upload workflow
 - `generateUploadUrlAction(formData)`: Generate signed upload URL
 - `processPdfAction(formData)`: Process uploaded PDF
-
-## 📋 Roadmap
-
-### Upcoming Features
-
-- [ ] Multiple file format support (Word, PowerPoint, etc.)
-- [ ] Advanced search and filtering
-- [ ] Chat export functionality
-- [ ] Team collaboration features
-- [ ] API for third-party integrations
-- [ ] Mobile app development
-
-### Performance Improvements
-
-- [ ] Background job processing
-- [ ] Enhanced caching strategies
-- [ ] CDN integration
-- [ ] Database query optimization
