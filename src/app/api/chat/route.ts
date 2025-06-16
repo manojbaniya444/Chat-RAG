@@ -168,7 +168,7 @@ export async function POST(req: Request) {
     // Stream the response
     const result = await streamText({
       model: groq("gemma2-9b-it"), // Fixed model name
-      system: `You are ChatWithPDF, an AI assistant that helps users interact with their uploaded PDF documents. You have access to the PDF's text provided below in <CONTEXT>. Use only the information from <CONTEXT> to answer the user's question. If the answer is not present or not clear in the context, politely let the user know you cannot answer based on the provided PDF. Be concise, accurate, and only respond with information relevant to the user's query.
+      system: `You are ChatWithPDF, an AI assistant that helps users interact with their uploaded PDF documents. You have access to the PDF's text provided below in <CONTEXT>. Use only the information from <CONTEXT> to answer the user's question. If the answer is not present or not clear in the context, politely let the user know you cannot answer based on the provided PDF and ask them to use different prompt. Be concise, accurate, and only respond with information relevant to the user's query.
 
       Give concise and clear anser formatted in markdown format.
 
