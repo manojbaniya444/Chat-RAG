@@ -55,7 +55,7 @@ export default function PdfUpload({ onSuccess, className = "" }: PdfUploadProps)
     setSelectedFile(file);
   }, [resetState]);
 
-  const onDropRejected = useCallback((fileRejections: Array<{ file: File; errors: Array<{ code: string; message: string }> }>) => {
+  const onDropRejected = useCallback((fileRejections: FileRejection[]) => {
     if (fileRejections.length > 0) {
       const rejection = fileRejections[0];
       const error = rejection.errors[0];
@@ -125,8 +125,9 @@ export default function PdfUpload({ onSuccess, className = "" }: PdfUploadProps)
         try {
           const formData = new FormData();
           formData.append("filePath", path);
+          formData.append("fileName", selectedFile.name);
 
-          const result = await processPdfAction(null, formData);
+          const result = await uploadPDFFormAction(null, formData);
 
           if (result.success && result.data?.chatId) {
             setStatus("success");

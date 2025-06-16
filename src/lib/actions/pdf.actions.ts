@@ -2,11 +2,9 @@
 
 import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
 import { PDFService } from "@/lib/services/pdf.service";
 import { RateLimitService } from "@/lib/services/rate-limit.service";
 import { uploadFileSchema } from "@/lib/validations";
-import { z } from "zod";
 
 // Action result type for consistent error handling
 type ActionResult<T = void> = {
@@ -70,8 +68,7 @@ export async function generateUploadUrlAction(
  * Process uploaded PDF and create chat
  */
 export async function processPDFAction(
-  filePath: string,
-  fileName: string
+  filePath: string
 ): Promise<ActionResult<{ chatId: string }>> {
   try {
     const { userId } = await auth();
@@ -146,7 +143,7 @@ export async function uploadPdfToStorageAction(
  * Complete PDF upload and processing workflow
  */
 export async function uploadAndProcessPdfAction(
-  prevState: any,
+  prevState: unknown,
   formData: FormData
 ): Promise<ActionResult<{ chatId: string }>> {
   try {
@@ -303,7 +300,7 @@ export async function uploadPDFFormAction(
     }
 
     // Process the uploaded PDF
-    const result = await processPDFAction(filePath, fileName);
+    const result = await processPDFAction(filePath);
     
     if (result.success && result.data?.chatId) {
       // Revalidate and redirect
