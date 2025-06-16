@@ -9,7 +9,6 @@ import {
   deleteChatSchema, 
   getChatMessagesSchema 
 } from "@/lib/validations";
-import { z } from "zod";
 
 // Action result type for consistent error handling
 type ActionResult<T = void> = {
@@ -19,9 +18,9 @@ type ActionResult<T = void> = {
 };
 
 /**
- * Get all chats for the current user
+ * Get all chats for the authenticated user
  */
-export async function getChatsAction(): Promise<ActionResult<any[]>> {
+export async function getChatsAction(): Promise<ActionResult<unknown[]>> {
   try {
     const { userId } = await auth();
     
@@ -30,6 +29,7 @@ export async function getChatsAction(): Promise<ActionResult<any[]>> {
     }
 
     const chats = await ChatService.getChatsForUser(userId);
+    
     return { success: true, data: chats };
   } catch (error) {
     console.error("Failed to get chats:", error);
@@ -43,7 +43,7 @@ export async function getChatsAction(): Promise<ActionResult<any[]>> {
 /**
  * Get a specific chat with messages
  */
-export async function getChatWithMessagesAction(chatId: string): Promise<ActionResult<any>> {
+export async function getChatWithMessagesAction(chatId: string): Promise<ActionResult<unknown>> {
   try {
     const { userId } = await auth();
     
@@ -73,82 +73,45 @@ export async function getChatWithMessagesAction(chatId: string): Promise<ActionR
   }
 }
 
-/**
- * Delete a chat
- */
-export async function deleteChatAction(prevState: any, formData: FormData): Promise<ActionResult> {
-  try {
-    const { userId } = await auth();
-    
-    if (!userId) {
-      return { success: false, error: "Authentication required" };
-    }
+  /**
+   * Delete a chat and all its messages
+   */
+  export async function deleteChatAction(chatId: string): Promise<ActionResult<void>> {
+    try {
+      const { userId } = await auth();
+      
+      if (!userId) {
+        return { success: false, error: "Authentication required" };
+      }
 
-    const chatId = formData.get("chatId") as string;
-    
-    // Validate input
-    const validation = deleteChatSchema.safeParse({ chatId, userId });
-    if (!validation.success) {
+      // Validate input
+      const validation = deleteChatSchema.safeParse({ chatId, userId });
+      if (!validation.success) {
+        return { success: false, error: "Invalid chat ID" };
+      }
+
+      await ChatService.deleteChat(chatId, userId);
+
+      // Revalidate the chats list
+      revalidatePath("/chat");
+      
+      return { success: true };
+    } catch (error) {
+      console.error("Failed to delete chat:", error);
       return { 
         success: false, 
-        error: validation.error.errors[0]?.message || "Invalid input" 
+        error: error instanceof Error ? error.message : "Failed to delete chat" 
       };
     }
-
-    await ChatService.deleteChat(chatId, userId);
-    
-    // Revalidate chat list
-    revalidatePath("/chat");
-    
-    return { success: true };
-  } catch (error) {
-    console.error("Failed to delete chat:", error);
-    return { 
-      success: false, 
-      error: error instanceof Error ? error.message : "Failed to delete chat" 
-    };
   }
-}
 
-/**
- * Update chat title
- */
-export async function updateChatTitleAction(
-  chatId: string, 
-  title: string
-): Promise<ActionResult<any>> {
-  try {
-    const { userId } = await auth();
-    
-    if (!userId) {
-      return { success: false, error: "Authentication required" };
-    }
 
-    // Validate input
-    if (!title.trim() || title.length > 100) {
-      return { success: false, error: "Title must be between 1 and 100 characters" };
-    }
-
-    const updatedChat = await ChatService.updateChatTitle(chatId, userId, title.trim());
-    
-    revalidatePath(`/chat/${chatId}`);
-    revalidatePath("/chat");
-    
-    return { success: true, data: updatedChat };
-  } catch (error) {
-    console.error("Failed to update chat title:", error);
-    return { 
-      success: false, 
-      error: error instanceof Error ? error.message : "Failed to update title" 
-    };
-  }
-}
 
 /**
  * Add a user message to a chat (for form submissions)
  */
 export async function addMessageAction(
-  prevState: any,
+  prevState: unknown,
   formData: FormData
 ): Promise<ActionResult<{ chatId: string; content: string }>> {
   try {

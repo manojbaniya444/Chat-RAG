@@ -2,6 +2,7 @@
 
 import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { PDFService } from "@/lib/services/pdf.service";
 import { RateLimitService } from "@/lib/services/rate-limit.service";
 import { uploadFileSchema } from "@/lib/validations";
@@ -12,14 +13,16 @@ type ActionResult<T = void> = {
   success: boolean;
   data?: T;
   error?: string;
+  redirectTo?: string;
 };
 
 /**
  * Generate signed upload URL for PDF
  */
 export async function generateUploadUrlAction(
-  prevState: any,
-  formData: FormData
+  fileName: string,
+  fileSize: number,
+  fileType: string
 ): Promise<ActionResult<{ url: string; path: string }>> {
   try {
     const { userId } = await auth();
@@ -28,22 +31,14 @@ export async function generateUploadUrlAction(
       return { success: false, error: "Authentication required" };
     }
 
-    const fileName = formData.get("fileName") as string;
-    const fileSize = Number(formData.get("fileSize"));
-    const fileType = formData.get("fileType") as string;
+    // Validate file type
+    if (fileType !== "application/pdf") {
+      return { success: false, error: "Only PDF files are allowed" };
+    }
 
-    // Validate input
-    const validation = uploadFileSchema.safeParse({
-      fileName,
-      fileSize,
-      fileType,
-    });
-
-    if (!validation.success) {
-      return { 
-        success: false, 
-        error: validation.error.errors[0]?.message || "Invalid file" 
-      };
+    // Validate file size (5MB limit)
+    if (fileSize > 5 * 1024 * 1024) {
+      return { success: false, error: "File size must be less than 5MB" };
     }
 
     // Check upload rate limit
@@ -51,14 +46,17 @@ export async function generateUploadUrlAction(
     if (!rateLimit.allowed) {
       return { 
         success: false, 
-        error: rateLimit.error || "Upload limit exceeded" 
+        error: rateLimit.error || "Upload limit exceeded",
       };
     }
 
     // Generate upload URL
     const result = await PDFService.generateUploadUrl(fileName);
     
-    return { success: true, data: result };
+    return { 
+      success: true, 
+      data: { url: result.url, path: result.path }
+    };
   } catch (error) {
     console.error("Failed to generate upload URL:", error);
     return { 
@@ -71,9 +69,9 @@ export async function generateUploadUrlAction(
 /**
  * Process uploaded PDF and create chat
  */
-export async function processPdfAction(
-  prevState: any,
-  formData: FormData
+export async function processPDFAction(
+  filePath: string,
+  fileName: string
 ): Promise<ActionResult<{ chatId: string }>> {
   try {
     const { userId } = await auth();
@@ -82,24 +80,25 @@ export async function processPdfAction(
       return { success: false, error: "Authentication required" };
     }
 
-    const filePath = formData.get("filePath") as string;
-
-    if (!filePath) {
-      return { success: false, error: "File path is required" };
+    // Check upload rate limit
+    const rateLimit = await RateLimitService.checkUploadRateLimit(userId);
+    if (!rateLimit.allowed) {
+      return { 
+        success: false, 
+        error: rateLimit.error || "Upload limit exceeded",
+      };
     }
 
-    // Process PDF and create chat
+    // Process the PDF
     const chatId = await PDFService.processCompletePDF(filePath, userId);
-    
-    // Revalidate multiple paths to ensure cache updates
+
+    // Revalidate relevant paths
     revalidatePath("/chat");
-    revalidatePath("/chat/[id]", "page");
-    revalidatePath("/api/chat");
     
-    // Return success with chatId for client-side navigation
     return { 
       success: true, 
-      data: { chatId } 
+      data: { chatId },
+      redirectTo: `/chat/${chatId}`
     };
   } catch (error) {
     console.error("Failed to process PDF:", error);
@@ -224,10 +223,9 @@ export async function uploadAndProcessPdfAction(
 /**
  * Delete PDF and associated chat
  */
-export async function deletePdfAction(
-  prevState: any,
-  formData: FormData
-): Promise<ActionResult> {
+export async function deletePDFAction(
+  chatId: string
+): Promise<ActionResult<void>> {
   try {
     const { userId } = await auth();
     
@@ -235,15 +233,11 @@ export async function deletePdfAction(
       return { success: false, error: "Authentication required" };
     }
 
-    const chatId = formData.get("chatId") as string;
-    const filePath = formData.get("filePath") as string;
+    // Delete the PDF and chat
+    await PDFService.deletePDF(chatId, userId);
 
-    if (!chatId || !filePath) {
-      return { success: false, error: "Missing required parameters" };
-    }
-
-    // Delete PDF from storage (optional cleanup)
-    await PDFService.deletePDF(filePath, chatId);
+    // Revalidate the chats list
+    revalidatePath("/chat");
     
     return { success: true };
   } catch (error) {
@@ -251,6 +245,82 @@ export async function deletePdfAction(
     return { 
       success: false, 
       error: error instanceof Error ? error.message : "Failed to delete PDF" 
+    };
+  }
+}
+
+/**
+ * Check upload rate limit for user
+ */
+export async function checkUploadRateLimitAction(): Promise<ActionResult<boolean>> {
+  try {
+    const { userId } = await auth();
+    
+    if (!userId) {
+      return { success: false, error: "Authentication required" };
+    }
+
+    const rateLimit = await RateLimitService.checkUploadRateLimit(userId);
+    
+    if (!rateLimit.allowed) {
+      return { 
+        success: false, 
+        error: rateLimit.error,
+        data: false 
+      };
+    }
+
+    return { success: true, data: true };
+  } catch (error) {
+    console.error("Failed to check upload rate limit:", error);
+    return { 
+      success: false, 
+      error: "Failed to check upload limit",
+      data: false 
+    };
+  }
+}
+
+/**
+ * Form action for PDF upload with redirect
+ */
+export async function uploadPDFFormAction(
+  prevState: unknown,
+  formData: FormData
+): Promise<ActionResult<{ chatId: string }>> {
+  try {
+    const { userId } = await auth();
+    
+    if (!userId) {
+      return { success: false, error: "Authentication required" };
+    }
+
+    const filePath = formData.get("filePath") as string;
+    const fileName = formData.get("fileName") as string;
+
+    if (!filePath || !fileName) {
+      return { success: false, error: "File path and name are required" };
+    }
+
+    // Process the uploaded PDF
+    const result = await processPDFAction(filePath, fileName);
+    
+    if (result.success && result.data?.chatId) {
+      // Revalidate and redirect
+      revalidatePath("/chat");
+      return {
+        success: true,
+        data: { chatId: result.data.chatId },
+        redirectTo: `/chat/${result.data.chatId}`
+      };
+    }
+
+    return result;
+  } catch (error) {
+    console.error("Failed to upload PDF:", error);
+    return { 
+      success: false, 
+      error: error instanceof Error ? error.message : "Failed to upload PDF" 
     };
   }
 } 

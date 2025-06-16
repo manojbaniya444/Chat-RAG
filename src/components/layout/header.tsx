@@ -1,4 +1,5 @@
 import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
+import Link from "next/link";
 
 export default function Header() {
   return (
@@ -16,12 +17,12 @@ export default function Header() {
 
         {/* Navigation */}
         <nav className="hidden md:flex items-center space-x-6">
-          <a 
+          <Link 
             href="/chat" 
             className="text-gray-600 hover:text-gray-900 transition-colors"
           >
             Dashboard
-          </a>
+          </Link>
           <a 
             href="#features" 
             className="text-gray-600 hover:text-gray-900 transition-colors"

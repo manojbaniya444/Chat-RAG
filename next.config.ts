@@ -1,10 +1,11 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // Configure Server Actions
-  serverActions: {
+  experimental: {
     // Increase body size limit to 6MB to handle PDF uploads
-    bodySizeLimit: '6mb',
+    serverActions: {
+      bodySizeLimit: '6mb',
+    },
   },
 };
 

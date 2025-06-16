@@ -1,9 +1,9 @@
 "use client";
 
 import React, { useCallback, useState, useTransition } from "react";
-import { useDropzone } from "react-dropzone";
+import { useDropzone, FileRejection } from "react-dropzone";
 import { useRouter } from "next/navigation";
-import { processPdfAction } from "@/lib/actions/pdf.actions";
+import { uploadPDFFormAction } from "@/lib/actions/pdf.actions";
 import { Button } from "@/components/ui/button";
 
 const MAX_SIZE_MB = 5;
@@ -55,7 +55,7 @@ export default function PdfUpload({ onSuccess, className = "" }: PdfUploadProps)
     setSelectedFile(file);
   }, [resetState]);
 
-  const onDropRejected = useCallback((fileRejections: any[]) => {
+  const onDropRejected = useCallback((fileRejections: Array<{ file: File; errors: Array<{ code: string; message: string }> }>) => {
     if (fileRejections.length > 0) {
       const rejection = fileRejections[0];
       const error = rejection.errors[0];
