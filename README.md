@@ -2,9 +2,10 @@
 
 A modern, enterprise-grade Next.js application that enables users to upload PDF documents and engage in intelligent conversations with them using advanced AI technology. Built with industry best practices, clean architecture, and scalable design patterns.
 
-## 🚀 Features
+## Features
 
 ### Core Functionality
+
 - **Smart PDF Upload**: Drag & drop interface with real-time validation and progress tracking
 - **Intelligent Text Processing**: Advanced text extraction and chunking with semantic understanding
 - **AI-Powered Conversations**: Context-aware chat interface with document-specific responses
@@ -12,6 +13,7 @@ A modern, enterprise-grade Next.js application that enables users to upload PDF 
 - **Real-time Streaming**: Live AI responses with streaming capabilities
 
 ### User Experience
+
 - **Secure Authentication**: Enterprise-grade authentication with Clerk
 - **Responsive Design**: Optimized for desktop, tablet, and mobile devices
 - **Rate Limiting**: Intelligent rate limiting to prevent abuse
@@ -19,22 +21,25 @@ A modern, enterprise-grade Next.js application that enables users to upload PDF 
 - **Loading States**: Smooth transitions and loading indicators
 
 ### Developer Experience
+
 - **Type Safety**: Full TypeScript implementation with strict type checking
 - **Server Components**: Leveraging Next.js 15 App Router with Server Components
 - **Server Actions**: Modern form handling and mutations with Server Actions
 - **Clean Architecture**: Separation of concerns with service layers and validation
 
-## 🏗️ Architecture
+## Architecture
 
 ### Technology Stack
 
 #### Frontend
+
 - **Next.js 15**: App Router with React Server Components
 - **React 19**: Latest React features with modern patterns
 - **TypeScript**: Strict type safety and developer experience
 - **Tailwind CSS**: Utility-first styling with custom design system
 
 #### Backend & Services
+
 - **Prisma ORM**: Type-safe database operations with PostgreSQL
 - **Clerk Authentication**: Secure user management and authentication
 - **Supabase Storage**: Scalable file storage with signed URLs
@@ -42,6 +47,7 @@ A modern, enterprise-grade Next.js application that enables users to upload PDF 
 - **Groq AI**: Fast AI completions with streaming support
 
 #### Validation & Security
+
 - **Zod**: Runtime type validation and schema validation
 - **Rate Limiting**: Built-in rate limiting service
 - **Input Sanitization**: Comprehensive input validation and sanitization
@@ -83,21 +89,24 @@ src/
 └── middleware.ts               # Clerk authentication middleware
 ```
 
-## 🛠️ Service Layer Architecture
+## Service Layer Architecture
 
 ### Chat Service (`ChatService`)
+
 - User chat management with caching
 - Message operations with rate limiting
 - Chat history and metadata management
 - Database query optimization
 
 ### PDF Service (`PDFService`)
+
 - File upload and processing pipeline
 - Text extraction and chunking
 - Vector embedding generation
 - Storage management with cleanup
 
 ### Rate Limiting Service (`RateLimitService`)
+
 - Per-user message limits (25/day)
 - Per-chat message limits (15/chat)
 - Upload rate limiting (5/hour)
@@ -145,6 +154,7 @@ GROQ_API_KEY=gsk_...
 ### Installation & Setup
 
 1. **Clone and Install**:
+
 ```bash
 git clone <repository-url>
 cd chatdoc
@@ -152,63 +162,72 @@ npm install
 ```
 
 2. **Database Setup**:
+
 ```bash
 npx prisma generate
 npx prisma db push
 ```
 
 3. **Development Server**:
+
 ```bash
 npm run dev
 ```
 
 4. **Production Build**:
+
 ```bash
 npm run build
 npm start
 ```
 
-## 📊 Performance & Limits
+## Performance & Limits
 
 ### Rate Limits
+
 - **Daily Messages**: 25 messages per user per 24 hours
 - **Chat Messages**: 15 messages maximum per chat session
 - **File Uploads**: 5 uploads per user per hour
 - **File Size**: 5MB maximum per PDF
 
 ### Performance Optimizations
+
 - **Server Components**: Reduced client-side JavaScript
 - **Caching**: React cache for database queries
 - **Streaming**: Real-time AI response streaming
 - **Lazy Loading**: Component-level code splitting
 - **Image Optimization**: Next.js automatic image optimization
 
-## 🧪 Testing & Quality
+## Testing & Quality
 
 ### Code Quality
+
 - **ESLint**: Strict linting rules with Next.js configuration
 - **TypeScript**: Strict mode with comprehensive type coverage
 - **Error Boundaries**: Comprehensive error handling
 - **Input Validation**: Zod schemas for all inputs
 
 ### Security Features
+
 - **Authentication**: Clerk-powered secure authentication
 - **Authorization**: Server-side route protection
 - **Input Sanitization**: All user inputs validated and sanitized
 - **Rate Limiting**: Built-in abuse prevention
 - **CORS**: Proper cross-origin resource sharing
 
-## 🚀 Deployment
+## Deployment
 
 ### Recommended Platforms
+
 - **Vercel**: Optimized for Next.js with zero-config deployment
 - **Railway**: Easy database and application deployment
 - **Supabase**: Managed PostgreSQL with built-in features
 
 ### Environment Variables for Production
+
 Ensure all environment variables are properly configured in your deployment platform.
 
-## 🤝 Contributing
+## Contributing
 
 We welcome contributions! Please follow these guidelines:
 
@@ -220,6 +239,7 @@ We welcome contributions! Please follow these guidelines:
 6. **Pull Request**: Create a descriptive PR with clear goals
 
 ### Development Workflow
+
 ```bash
 # Create feature branch
 git checkout -b feature/your-feature-name
@@ -237,12 +257,14 @@ git push origin feature/your-feature-name
 ### Server Actions
 
 #### Chat Actions
+
 - `getChatsAction()`: Retrieve user's chat list
 - `getChatWithMessagesAction(chatId)`: Get chat with messages
 - `deleteChatAction(formData)`: Delete a chat
 - `updateChatTitleAction(chatId, title)`: Update chat title
 
 #### PDF Actions
+
 - `uploadAndProcessPdfAction(formData)`: Complete PDF upload workflow
 - `generateUploadUrlAction(formData)`: Generate signed upload URL
 - `processPdfAction(formData)`: Process uploaded PDF
@@ -250,6 +272,7 @@ git push origin feature/your-feature-name
 ## 📋 Roadmap
 
 ### Upcoming Features
+
 - [ ] Multiple file format support (Word, PowerPoint, etc.)
 - [ ] Advanced search and filtering
 - [ ] Chat export functionality
@@ -258,22 +281,8 @@ git push origin feature/your-feature-name
 - [ ] Mobile app development
 
 ### Performance Improvements
+
 - [ ] Background job processing
 - [ ] Enhanced caching strategies
 - [ ] CDN integration
 - [ ] Database query optimization
-
-## 📞 Support
-
-For support, feature requests, or bug reports:
-- Create an issue on GitHub
-- Contact: [support@chatwithpdf.com](mailto:support@chatwithpdf.com)
-- Documentation: [docs.chatwithpdf.com](https://docs.chatwithpdf.com)
-
-## 📜 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
----
-
-**Built with ❤️ using modern web technologies and best practices.** 
