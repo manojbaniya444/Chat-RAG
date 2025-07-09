@@ -28,6 +28,12 @@ Chat with your PDF using RAG (Retrieval Augmented Generation) powered by Vercel 
 - **Server Actions**: Modern form handling and mutations with Server Actions
 - **Clean Architecture**: Separation of concerns with service layers and validation
 
+## Demo Video
+
+Watch a quick demo of **Chat with PDF** in action:
+
+https://github.com/user-attachments/assets/2467120d-8edf-4d5b-8496-86e42d07056d
+
 ## Architecture
 
 ### Technology Stack
