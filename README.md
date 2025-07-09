@@ -1,6 +1,8 @@
-# ChatWithPDF - Intelligent Document Conversations
+# Chat with PDF
 
-A modern, enterprise-grade Next.js application that enables users to upload PDF documents and engage in intelligent conversations with them using advanced AI technology. Built with industry best practices, clean architecture, and scalable design patterns.
+Chat with your PDF using RAG (Retrieval Augmented Generation) powered by Vercel AI SDK, Pinecone, Groq and JINA Embeddings Provider with Clerk for authentication, Supabase for storage, and Postgres as the primary database.
+
+![Chat with PDF Screenshot](./public/pdf-rag-chat.png)
 
 ## Features
 
@@ -18,8 +20,7 @@ A modern, enterprise-grade Next.js application that enables users to upload PDF 
 - **Responsive Design**: Optimized for desktop, tablet, and mobile devices
 - **Rate Limiting**: Intelligent rate limiting to prevent abuse
 - **Error Handling**: Comprehensive error boundaries and user-friendly error messages
-- **Loading States**: Smooth transitions and loading indicators
-
+- 
 ### Developer Experience
 
 - **Type Safety**: Full TypeScript implementation with strict type checking
